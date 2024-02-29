@@ -3,15 +3,6 @@
        
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
-       FILE-CONTROL.
-           SELECT soldes ASSIGN TO 'sold.txt'
-               ORGANIZATION IS LINE SEQUENTIAL
-               FILE STATUS IS ws-file-status.
-       
-           SELECT historique ASSIGN TO 'historique.txt'
-               ORGANIZATION IS LINE SEQUENTIAL
-               FILE STATUS IS ws-file-status.
-
        DATA DIVISION.
        
 
@@ -42,7 +33,7 @@
            05 CSV-FILLER PIC X VALUE ",".
            05 H-Montant PIC 9(5)V99. 
 
-       01 rec-choice PIC  9.
+       01 rec_choice PIC  9.
 
        77 F-Depot PIC X VALUE "D".
        77 F-Retrait PIC X VALUE "R".
@@ -61,46 +52,23 @@
 
 
        TRAITEMENT-PRINCIPAL.
-           PERFORM VERIFIER-CREER-FICHIERS.
-           PERFORM LIRE-SOLDE.
-           OPEN EXTEND historique.
            PERFORM MENU-OPERATIONS.
 
 
 
-       LIRE-SOLDE.
-           OPEN INPUT soldes
-           READ soldes INTO soldes-record AT END 
-               DISPLAY "Aucun solde existant. Utilisation des valeurs par défaut"
-           NOT AT END
-               MOVE Soldecompte1 TO SoldeCompte
-               MOVE Soldecompte2 TO SoldeCompteSecond
-           END-READ.
-           CLOSE soldes.
-
-       FIN-PROGRAMME.
-           OPEN OUTPUT soldes
-           MOVE SoldeCompte TO Soldecompte1
-           WRITE soldes-record
-           END-WRITE.
-           CLOSE soldes. 
-
-           CLOSE historique.
-           STOP RUN.
-
-
+      
        DEPOT.
            DISPLAY "Donnez le montant de votre dépôt"
            ACCEPT MontantDepot.
            COMPUTE SoldeCompte = SoldeCompte + MontantDepot.
-           *>ADD MontantDepot TO SoldeCompte peut être plus lisible ici
            MOVE MontantDepot TO H-Montant.
            MOVE F-DEPOT TO H-Action.
            MOVE SoldeCompte TO Soldecompte1
-           MOVE 1 TO rec-choice
-           CALL subprogram USING rec-choice, historique-record.
-           MOVE 2 TO rec-choice
-           CALL subprogram USING rec-choice, historique-record, soldes-record .
+           MOVE 1 TO rec_choice
+           DISPLAY historique-record
+           CALL 'subprogram' USING rec_choice, historique-record.
+           MOVE 2 TO rec_choice
+           CALL 'subprogram' USING rec_choice, historique-record, soldes-record .
           
 
        
@@ -114,10 +82,10 @@
                MOVE F-Retrait TO H-Action
                MOVE SoldeCompte TO Soldecompte1
 
-               MOVE 1 TO rec-choice
-               CALL subprogram USING historique-record, rec-choice 
-               MOVE 2 TO rec-choice
-               CALL subprogram USING soldes-record, rec-choice 
+               MOVE 1 TO rec_choice
+               CALL 'subprogram' USING rec_choice, historique-record, 
+               MOVE 2 TO rec_choice
+               CALL 'subprogram' USING rec_choice, historique-record, soldes-record 
            ELSE 
                DISPLAY "Erreur: Solde Insuffisant"
            END-IF.
@@ -134,10 +102,10 @@
                MOVE SoldeCompte TO Soldecompte1
                MOVE SoldeCompteSecond TO Soldecompte2
                
-               MOVE 1 TO rec-choice
-               CALL subprogram USING historique-record, rec-choice 
-               MOVE 2 TO rec-choice
-               CALL subprogram USING soldes-record, rec-choice 
+               MOVE 1 TO rec_choice
+               CALL 'subprogram' USING rec_choice, historique-record 
+               MOVE 2 TO rec_choice
+               CALL 'subprogram' USING rec_choice, historique-record, soldes-record 
            ELSE 
                DISPLAY "Erreur: Solde insuffisant"
            END-IF.
@@ -159,7 +127,7 @@
            WHEN 2 PERFORM DEPOT
            WHEN 3 PERFORM RETRAIT
            WHEN 4 PERFORM VIREMENT
-           WHEN 5 PERFORM FIN-PROGRAMME
+           WHEN 5 DISPLAY "Good bye !"
            WHEN OTHER
                DISPLAY "Choix Invalide."
        END-EVALUATE

@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. SubProgram.
+       PROGRAM-ID. subprogram.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -26,13 +26,13 @@
             05 H-Montant PIC 9(5)V99.
        
        WORKING-STORAGE SECTION.
-            01 ws-file-status PIC XX.
+            01 ws-file-status PIC X(2).
 
        
        LINKAGE SECTION.
           
 
-        01 rec-choice PIC 9.
+        01 rec_choice PIC 9.
         
         01 ls_soldes_record.
            05 ls_Soldecompte1 PIC  9(5)V99.
@@ -44,21 +44,21 @@
            05 ls_CSV-FILLER PIC X VALUE ",".
            05 ls_H-Montant PIC 9(5)V99. 
 
-       PROCEDURE DIVISION USING  rec-choice, ls_historique_record, ls_soldes_record.
+       PROCEDURE DIVISION USING  rec_choice, ls_historique_record, ls_soldes_record.
 
-           IF rec-choice = 1 THEN
+           IF rec_choice = 1 THEN
                MOVE ls_H-Action TO H-Action OF historique
                MOVE ls_H-Montant TO H-Montant OF historique
                PERFORM ENREGISTRER-HISTORIQUE
-           ELSE IF rec-choice = 2 THEN 
+           ELSE IF rec_choice = 2 THEN 
                MOVE ls_Soldecompte1  TO Soldecompte1 OF soldes 
                MOVE ls_MYFILLER TO MYFILLER OF soldes 
                MOVE ls_Soldecompte2 TO Soldecompte2 OF soldes 
+               DISPLAY soldes
                PERFORM ENREGISTRER-SOLD
            END-IF.
-
-           STOP RUN.
-
+        EXIT PROGRAM.
+       
 
 
        ENREGISTRER-HISTORIQUE.
@@ -67,6 +67,9 @@
                CLOSE historique_file
                OPEN OUTPUT historique_file
            END-IF.
+           CLOSE historique_file
+           OPEN OUTPUT historique_file
+           DISPLAY historique
            WRITE historique
            CLOSE historique_file.
 
@@ -76,7 +79,10 @@
                CLOSE soldes_file
                OPEN OUTPUT soldes_file
            END-IF.
+           CLOSE soldes_file
+           OPEN OUTPUT soldes_file
+           DISPLAY soldes
            WRITE soldes
            CLOSE soldes_file.
 
-       END PROGRAM SubProgram.
+       END PROGRAM subprogram.
